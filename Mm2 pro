@@ -1,0 +1,151 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local plr = Players.LocalPlayer
+
+-- ล้างของเก่าเพื่อป้องกัน UI ซ้อน
+if CoreGui:FindFirstChild("By_frempoke_Final_Fixed_V15") then CoreGui.By_frempoke_Final_Fixed_V15:Destroy() end
+
+local gui = Instance.new("ScreenGui", CoreGui)
+gui.Name = "By_frempoke_Final_Fixed_V15"
+gui.ResetOnSpawn = false
+
+-- [[ GUI MAIN ]]
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,380,0,320); main.Position = UDim2.new(0.5,-190,0.3,-160)
+main.BackgroundColor3 = Color3.fromRGB(15,15,15); main.Active = true; main.Draggable = true
+Instance.new("UICorner",main).CornerRadius = UDim.new(0,18)
+
+-- TOP BAR (By frempoke v0.1)
+local top = Instance.new("Frame", main); top.Size = UDim2.new(1,0,0,40); top.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Instance.new("UICorner",top).CornerRadius = UDim.new(0,18)
+
+local title = Instance.new("TextLabel", top); title.Position = UDim2.new(0,15,0,0); title.Size = UDim2.new(1,-100,1,0)
+title.Text = "By frempoke v0.1"; title.TextColor3 = Color3.new(1,1,1); title.Font = "GothamBold"; title.BackgroundTransparency = 1; title.TextXAlignment = "Left"; title.TextSize = 16
+
+local closeBtn = Instance.new("TextButton", top); closeBtn.Size = UDim2.new(0,30,0,30); closeBtn.Position = UDim2.new(1,-35,0.5,-15)
+closeBtn.Text = "X"; closeBtn.BackgroundColor3 = Color3.fromRGB(200,50,50); closeBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner",closeBtn).CornerRadius = UDim.new(1,0)
+closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+
+local foldBtn = Instance.new("TextButton", top); foldBtn.Size = UDim2.new(0,30,0,30); foldBtn.Position = UDim2.new(1,-70,0.5,-15)
+foldBtn.Text = "-"; foldBtn.BackgroundColor3 = Color3.fromRGB(60,60,60); foldBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner",foldBtn).CornerRadius = UDim.new(1,0)
+
+local content = Instance.new("Frame", main); content.Position = UDim2.new(0,0,0,40); content.Size = UDim2.new(1,0,1,-40); content.BackgroundTransparency = 1; content.Visible = true
+
+local isFolded = false
+foldBtn.MouseButton1Click:Connect(function()
+    isFolded = not isFolded; content.Visible = not isFolded; foldBtn.Text = isFolded and "+" or "-"
+    main:TweenSize(isFolded and UDim2.new(0,380,0,40) or UDim2.new(0,380,0,320), "Out", "Quad", 0.2, true)
+end)
+
+-- [[ LOGIC MASTER ]]
+_G.ESP = false; _G.AutoFarm = false; _G.Speed = 16; _G.Jump = 50
+_G.DanceLoop = false; _G.SnakeFlow = false; _G.VictoryPose = false; _G.HipsShake = false
+
+RunService.RenderStepped:Connect(function()
+    if _G.ESP then
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                local hl = v.Character:FindFirstChild("SharkHL") or Instance.new("Highlight", v.Character)
+                hl.Name = "SharkHL"; hl.FillTransparency = 0.5
+                local isM = v.Backpack:FindFirstChild("Knife") or v.Character:FindFirstChild("Knife")
+                local isS = v.Backpack:FindFirstChild("Gun") or v.Character:FindFirstChild("Gun")
+                hl.FillColor = isM and Color3.new(1,0,0) or (isS and Color3.new(0,0.5,1) or Color3.new(0,1,0))
+            end
+        end
+    else for _, v in pairs(workspace:GetDescendants()) do if v.Name == "SharkHL" then v:Destroy() end end end
+    if plr.Character and plr.Character:FindFirstChild("Humanoid") then
+        plr.Character.Humanoid.WalkSpeed = _G.Speed; plr.Character.Humanoid.JumpPower = _G.Jump; plr.Character.Humanoid.UseJumpPower = true
+    end
+end)
+
+-- [[ DANCE SYSTEM (FIXED & ADDED HIPS SHAKE) ]]
+local activeAnims = {}
+task.spawn(function()
+    while task.wait(0.1) do
+        if plr.Character and plr.Character:FindFirstChild("Humanoid") then
+            -- ท่าเต้นรัวๆ
+            if _G.DanceLoop then 
+                local a = Instance.new("Animation"); a.AnimationId = "rbxassetid://3333499508"
+                local l = plr.Character.Humanoid:LoadAnimation(a); l:Play(); l:AdjustSpeed(10); task.wait(0.2); l:Stop() 
+            end
+            -- ท่าเลื้อย
+            if _G.SnakeFlow then 
+                local a = Instance.new("Animation"); a.AnimationId = "rbxassetid://5918726674"
+                local l = plr.Character.Humanoid:LoadAnimation(a); l:Play(); l:AdjustSpeed(1.5); task.wait(2.5); l:Stop() 
+            end
+            -- ท่า Victory
+            if _G.VictoryPose then 
+                if not activeAnims.Victory then
+                    local a = Instance.new("Animation"); a.AnimationId = "rbxassetid://507771019"
+                    activeAnims.Victory = plr.Character.Humanoid:LoadAnimation(a); activeAnims.Victory:Play()
+                end
+            else if activeAnims.Victory then activeAnims.Victory:Stop(); activeAnims.Victory = nil end end
+            
+            -- [NEW] ท่าส่ายสะโพกสุดกวน
+            if _G.HipsShake then
+                if not activeAnims.Hips then
+                    local a = Instance.new("Animation"); a.AnimationId = "rbxassetid://429703734" -- ท่ากวนๆ
+                    activeAnims.Hips = plr.Character.Humanoid:LoadAnimation(a); activeAnims.Hips:Play(); activeAnims.Hips:AdjustSpeed(2)
+                end
+            else if activeAnims.Hips then activeAnims.Hips:Stop(); activeAnims.Hips = nil end end
+        end
+    end
+end)
+
+-- [[ SLOW AUTO FARM ]]
+task.spawn(function()
+    while task.wait(1.5) do
+        if _G.AutoFarm and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            for _, v in pairs(workspace:GetDescendants()) do
+                if (v.Name:lower():find("coin") or v.Name == "Touch") and v:IsA("BasePart") and v.Transparency < 1 and _G.AutoFarm then
+                    local info = TweenInfo.new(2.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+                    TweenService:Create(plr.Character.HumanoidRootPart, info, {CFrame = v.CFrame}):Play(); task.wait(2.9)
+                end
+            end
+        end
+    end
+end)
+
+-- [[ UI BUILDERS ]]
+local left = Instance.new("Frame", content); left.Size = UDim2.new(0,110,1,0); left.BackgroundColor3 = Color3.fromRGB(25,25,25); Instance.new("UICorner",left).CornerRadius = UDim.new(0,14); Instance.new("UIListLayout", left).Padding = UDim.new(0,5)
+local right = Instance.new("ScrollingFrame", content); right.Position = UDim2.new(0,115,0,5); right.Size = UDim2.new(1,-120,1,-10); right.BackgroundTransparency = 1; right.ScrollBarThickness = 4; right.CanvasSize = UDim2.new(0,0,0,0); right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+local rightLayout = Instance.new("UIListLayout", right); rightLayout.Padding = UDim.new(0,8); rightLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+function clearRight() for _,v in pairs(right:GetChildren()) do if not v:IsA("UIListLayout") then v:Destroy() end end end
+function createTab(name, callback)
+    local b = Instance.new("TextButton", left); b.Size = UDim2.new(1,0,0,40); b.Text = name; b.BackgroundColor3 = Color3.fromRGB(40,40,40); b.TextColor3 = Color3.new(1,1,1); b.Font = "GothamBold"
+    b.MouseButton1Click:Connect(function() clearRight(); callback() end)
+end
+function createToggle(name, func, order)
+    local b = Instance.new("TextButton", right); b.Size = UDim2.new(1,-10,0,40); b.Text = name.." : OFF"; b.BackgroundColor3 = Color3.fromRGB(60,60,60); b.TextColor3 = Color3.new(1,1,1); b.LayoutOrder = order or 0
+    local s = false; b.MouseButton1Click:Connect(function() s = not s; b.Text = name..(s and " : ON" or " : OFF"); func(s) end)
+end
+
+-- [[ TABS ]]
+createTab("👁 ESP", function() createToggle("ESP Player & Gun", function(s) _G.ESP = s end, 1) end)
+createTab("💰 Farm", function() createToggle("Glide Auto Farm", function(s) _G.AutoFarm = s end, 1) end)
+createTab("🕺 Emote", function() 
+    createToggle("ท่าเต้นรัวๆ (Loop)", function(s) _G.DanceLoop = s end, 1)
+    createToggle("ท่าเลื้อยเทพเจ้า", function(s) _G.SnakeFlow = s end, 2)
+    createToggle("ท่าดีใจ Victory", function(s) _G.VictoryPose = s end, 3)
+    createToggle("ส่ายสะโพกสุดกวน", function(s) _G.HipsShake = s end, 4)
+end)
+createTab("🏃 Player", function()
+    createToggle("Speed 50", function(s) _G.Speed = s and 50 or 16 end, 1)
+    createToggle("Jump 100", function(s) _G.Jump = s and 100 or 50 end, 2)
+    
+    local tpBtn = Instance.new("TextButton", right); tpBtn.Size = UDim2.new(1,-10,0,40); tpBtn.Text = "เลือกผู้เล่น [กดเปิด]"; tpBtn.BackgroundColor3 = Color3.fromRGB(45,45,45); tpBtn.TextColor3 = Color3.new(1,1,1)
+    tpBtn.MouseButton1Click:Connect(function()
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= plr and p.Character then
+                local pBtn = Instance.new("TextButton", right); pBtn.Size = UDim2.new(1,-10,0,30); pBtn.Text = p.Name; pBtn.BackgroundColor3 = Color3.fromRGB(70,70,70); pBtn.TextColor3 = Color3.new(1,1,1)
+                pBtn.MouseButton1Click:Connect(function() plr.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame end)
+            end
+        end
+    end)
+end)
+
+clearRight(); createToggle("ESP Player & Gun", function(s) _G.ESP = s end, 1)
+                           
